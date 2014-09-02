@@ -526,7 +526,7 @@ fields, actions and values as :py:meth:`elasticutils.S.query`.
 ===================  ====================
 field action         elasticsearch filter
 ===================  ====================
-in                   Terms filter
+in                   Terms filter [6]_
 gt, gte, lt, lte     Range filter
 range                Range filter [5]_
 prefix, startswith   Prefix filter
@@ -536,6 +536,10 @@ prefix, startswith   Prefix filter
 .. [5] The ``range`` field action is a shortcut for defining both sides of
        the range at once. The range is inclusive on both sides and accepts
        a tuple with the lower value first and upper value second.
+
+.. [6] The ``in`` field action support also the ``minimum_should_match``
+       parameter. If you pass a two elements list where the first element
+       is another list the second parameter will be treated as minimum_should_match.
 
 You can also filter on fields that have ``None`` as a value or have no
 value::
