@@ -307,7 +307,7 @@ field action            Elasticsearch query type
 ======================  ================================
 (no action specified)   Term query
 term                    Term query
-terms                   Terms query
+terms                   Terms query [5]_
 in                      Terms query
 text                    Text query (`DEPRECATED`)
 match                   Match query [1]_
@@ -335,6 +335,10 @@ query_string            Querystring query [3]_
 .. [4] The ``range`` field action is a shortcut for defining both sides of
        the range at once. The range is inclusive on both sides and accepts
        a tuple with the lower value first and upper value second.
+
+.. [5] The ``terms`` field action support also the ``minimum_should_match``
+       parameter. If you pass a two elements list and the first element
+       is a list, the second element is treated as minimum_should_match.
 
 
 .. seealso::

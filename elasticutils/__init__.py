@@ -41,7 +41,6 @@ QUERY_ACTION_MAP = {
     None: 'term',  # Default to term
     'in': 'in',
     'term': 'term',
-    'terms': 'terms',
     'prefix': 'prefix',
     'match': 'match',
     'match_phrase': 'match_phrase',
@@ -393,15 +392,20 @@ class Q(object):
                 and sorted(self.must_not_q) == sorted(other.must_not_q))
 
 
-def _boosted_value(name, action, key, value, boost):
+def _boosted_value(name, action, key, value, boost, extra={}):
     """Boost a value if we should in _process_queries"""
     if boost is not None:
         # Note: Most queries use 'value' for the key name except
         # Match queries which use 'query'. So we have to do some
         # switcheroo for that.
         value_key = 'query' if action in MATCH_ACTIONS else 'value'
-        return {name: {'boost': boost, value_key: value}}
-    return {name: value}
+        q = {name: {'boost': boost, value_key: value}}
+    else:
+        q = {name: value}
+
+    q.update(extra)
+
+    return q
 
 
 class PythonMixin(object):
@@ -1343,7 +1347,26 @@ class S(PythonMixin):
             return {
                 'range': {field_name: _boosted_value(
                         field_action, field_action, key, val, boost)}
-           }
+            }
+
+        elif field_action == 'terms':
+            minimum_should_match = 1
+
+            if len(val) == 2 and isinstance(val[0], (tuple, list)):
+                minimum_should_match = val[1]
+                val = val[0]
+
+            value = {
+                'terms': _boosted_value(
+                    field_name, field_action, key, val, boost
+                )
+            }
+
+            if minimum_should_match > 1:
+                value['terms']['minimum_should_match'] = minimum_should_match
+
+            return value
+
 
         elif field_action == 'range':
             lower, upper = val

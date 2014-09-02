@@ -190,6 +190,7 @@ class QueryTest(ESTestCase):
             'id': 1,
             'foo': 'bar',
             'tag': 'awesome',
+            'attributes': ['awesome', 'boring'],
             'width': '2',
             'height': 7
         },
@@ -197,6 +198,7 @@ class QueryTest(ESTestCase):
             'id': 2,
             'foo': 'bart',
             'tag': 'boring',
+            'attributes': ['awesome', 'car'],
             'width': '7',
             'height': 11
         },
@@ -204,6 +206,7 @@ class QueryTest(ESTestCase):
             'id': 3,
             'foo': 'car',
             'tag': 'awesome',
+            'attributes': ['awesome', 'duck'],
             'width': '5',
             'height': 5
         },
@@ -211,6 +214,7 @@ class QueryTest(ESTestCase):
             'id': 4,
             'foo': 'duck',
             'tag': 'boat',
+            'attributes': ['train', 'boat'],
             'width': '11',
             'height': 7
         },
@@ -218,6 +222,7 @@ class QueryTest(ESTestCase):
             'id': 5,
             'foo': 'train car',
             'tag': 'awesome',
+            'attributes': ['car', 'boring'],
             'width': '7',
             'height': 2
         }
@@ -244,6 +249,12 @@ class QueryTest(ESTestCase):
         eq_(len(self.get_s().query(foo__terms=['car', 'duck'])), 3)
 
         eq_(len(self.get_s().query(Q(foo__terms=['car', 'duck']))), 3)
+
+        # minumum should match support
+
+        eq_(len(self.get_s().query(attributes__terms=(['awesome', 'boring'], 2))), 1)
+
+        eq_(len(self.get_s().query(Q(attributes__terms=(['awesome', 'boring'], 2)))), 1)
 
     def test_q_in(self):
         eq_(len(self.get_s().query(foo__in=['car', 'bar'])), 3)
