@@ -849,7 +849,7 @@ class FilterTest(ESTestCase):
                 }
         })
 
-        eq_(len(s, 3))
+        eq_(len(s), 3)
 
         s = self.get_s().filter(bar__in=(['nice', 'sea'], 2))
 
@@ -862,7 +862,7 @@ class FilterTest(ESTestCase):
                 }
         })
 
-        eq_(len(s, 1))
+        eq_(len(s), 1)
 
 
     def test_filter_prefix(self):
