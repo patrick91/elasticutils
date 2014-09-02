@@ -677,7 +677,7 @@ class FilterTest(ESTestCase):
         {'id': 2, 'bar': ['boat', 'nice'], 'foo': 'bart', 'tag': 'boring', 'width': '7'},
         {'id': 3, 'bar': ['lovely', 'nice'], 'foo': 'car', 'tag': 'awesome', 'width': '5'},
         {'id': 4, 'bar': ['car', 'nice'], 'foo': 'duck', 'tag': 'boat', 'width': '11'},
-        {'id': 5, 'bar': ['boom', 'nice'], 'foo': 'car', 'tag': 'awesome', 'width': '7'},
+        {'id': 5, 'bar': ['boom', 'car'], 'foo': 'car', 'tag': 'awesome', 'width': '7'},
         {'id': 6, 'bar': ['sea', 'nice'], 'foo': 'caboose', 'tag': 'end', 'width': None}
         ]
 
@@ -839,23 +839,26 @@ class FilterTest(ESTestCase):
         eq_(s.count(), 6)
 
     def test_filter_in(self):
-        s = self.get_s().filter(foo__in=['car', 'bar'])
+        eq_(len(self.get_s().filter(foo__in=['car', 'bar'])), 3)
+
+    def test_filter_terms(self):
+        s = self.get_s().filter(bar__terms=['car', 'bar'])
 
         eqish_(s.build_search(), {
                 'filter': {
-                    'in': {
-                        'foo': ['car', 'bar']
+                    'terms': {
+                        'bar': ['car', 'nice']
                     }
                 }
         })
 
-        eq_(len(s), 3)
+        eq_(len(s), 6)
 
-        s = self.get_s().filter(bar__in=(['nice', 'sea'], 2))
+        s = self.get_s().filter(bar__terms=(['nice', 'sea'], 2))
 
         eqish_(s.build_search(), {
                 'filter': {
-                    'in': {
+                    'terms': {
                         'bar': ['nice', 'sea'],
                         'minimum_should_match': 2
                     }
@@ -863,7 +866,6 @@ class FilterTest(ESTestCase):
         })
 
         eq_(len(s), 1)
-
 
     def test_filter_prefix(self):
         eq_(len(self.get_s().filter(foo__prefix='c')), 3)
