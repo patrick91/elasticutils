@@ -842,7 +842,7 @@ class FilterTest(ESTestCase):
         eq_(len(self.get_s().filter(foo__in=['car', 'bar'])), 3)
 
     def test_filter_terms(self):
-        s = self.get_s().filter(bar__terms=['car', 'bar'])
+        s = self.get_s().filter(bar__terms=['car', 'nice'])
 
         eqish_(s.build_search(), {
                 'filter': {
