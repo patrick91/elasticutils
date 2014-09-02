@@ -1291,7 +1291,13 @@ class S(PythonMixin):
                     rv.append({'prefix': {key: val}})
 
                 elif field_action == 'in':
-                    rv.append({'in': {key: val}})
+                    if len(val) == 2 and isinstance(val[0], (list, tuple)):
+                        rv.append({'in': {
+                            key: val[0],
+                            'minimum_should_match': val[1]
+                        }})
+                    else:
+                        rv.append({'in': {key: val}})
 
                 elif field_action in RANGE_ACTIONS:
                     rv.append({'range': {key: {field_action: val}}})
