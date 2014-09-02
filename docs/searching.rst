@@ -307,7 +307,7 @@ field action            Elasticsearch query type
 ======================  ================================
 (no action specified)   Term query
 term                    Term query
-terms                   Terms query
+terms                   Terms query [6]_
 in                      Terms query
 text                    Text query (`DEPRECATED`)
 match                   Match query [1]_
@@ -339,6 +339,10 @@ distance                Geo distance query [5]_
 
 .. [5] The ``distance`` field need accepts a tuple with distance, latitude and longitude
        where distance is a string like 5km.
+
+.. [6] The ``terms`` field action support also the ``minimum_should_match``
+       parameter. If you pass a two elements list and the first element
+       is a list, the second element is treated as minimum_should_match.
 
 
 .. seealso::

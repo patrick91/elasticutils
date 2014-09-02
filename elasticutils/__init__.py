@@ -41,7 +41,6 @@ QUERY_ACTION_MAP = {
     None: 'term',  # Default to term
     'in': 'in',
     'term': 'term',
-    'terms': 'terms',
     'prefix': 'prefix',
     'match': 'match',
     'match_phrase': 'match_phrase',
@@ -1353,7 +1352,26 @@ class S(PythonMixin):
             return {
                 'range': {field_name: _boosted_value(
                         field_action, field_action, key, val, boost)}
-           }
+            }
+
+        elif field_action == 'terms':
+            minimum_should_match = 1
+
+            if len(val) == 2 and isinstance(val[0], (tuple, list)):
+                minimum_should_match = val[1]
+                val = val[0]
+
+            value = {
+                'terms': _boosted_value(
+                    field_name, field_action, key, val, boost
+                )
+            }
+
+            if minimum_should_match > 1:
+                value['terms']['minimum_should_match'] = minimum_should_match
+
+            return value
+
 
         elif field_action == 'range':
             lower, upper = val
