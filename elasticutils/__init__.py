@@ -1173,7 +1173,7 @@ class S(PythonMixin):
 
         if search_raw:
             qs = search_raw
-
+            fields = set()
         else:
             qs = {}
 
@@ -1248,7 +1248,7 @@ class S(PythonMixin):
                     },
                 }
 
-            self.fields, self.as_list, self.as_dict = fields, as_list, as_dict
+        self.fields, self.as_list, self.as_dict = fields, as_list, as_dict
         self.search_type = search_type
         return qs
 
