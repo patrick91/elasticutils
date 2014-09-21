@@ -777,6 +777,27 @@ class S(PythonMixin):
         """
         return self._clone(next_step=('query_raw', query))
 
+    def search_raw(self, search):
+        """
+        Return a new S instance with a search_raw.
+
+        :arg search: Python dict specifying the complete search to send
+            to Elasticsearch
+
+        Example::
+
+            S().search_raw({'match': {'title': 'example'}})
+
+
+        .. Note::
+
+           If there's a search_raw in your S, then that's your
+           search. All ``.search()``, ``.demote()``, ``.boost()`` and
+           anything else that affects the search clause is ignored.
+
+        """
+        return self._clone(next_step=('search_raw', search))
+
     def filter(self, *filters, **kw):
         """
         Return a new S instance with filter args combined with
@@ -1090,6 +1111,7 @@ class S(PythonMixin):
         explain = False
         as_list = as_dict = False
         search_type = None
+        search_raw = None
 
         for action, value in self.steps:
             if action == 'order_by':
@@ -1117,6 +1139,8 @@ class S(PythonMixin):
                 queries.append(value)
             elif action == 'query_raw':
                 query_raw = value
+            elif action == 'search_raw':
+                search_raw = value
             elif action == 'demote':
                 # value here is a tuple of (negative_boost, query)
                 demote = value
@@ -1146,6 +1170,9 @@ class S(PythonMixin):
                 pass
             else:
                 raise NotImplementedError(action)
+
+        if search_raw:
+            return search_raw
 
         qs = {}
 
