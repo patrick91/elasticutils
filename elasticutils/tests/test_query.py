@@ -388,6 +388,11 @@ class QueryTest(ESTestCase):
         eq_(s.build_search(),
             {'query': {'match': {'title': 'example'}}})
 
+    def test_search_raw(self):
+        s = self.get_s().search_raw({'query': {'match': {'title': 'example'}}})
+        eq_(s.build_search(),
+            {'query': {'match': {'title': 'example'}}})
+
     def test_query_raw_overrides_everything(self):
         s = self.get_s().query_raw({'match': {'title': 'example'}})
         s = s.query(foo__match='foo')
