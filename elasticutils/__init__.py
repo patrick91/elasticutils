@@ -1173,82 +1173,83 @@ class S(PythonMixin):
                 raise NotImplementedError(action)
 
         if search_raw:
-            return search_raw
-
-        qs = {}
-
-        # If there's a filters_raw, we use that.
-        if filters_raw:
-            qs['filter'] = filters_raw
-        else:
-            if len(filters) > 1:
-                qs['filter'] = {'and': filters}
-            elif filters:
-                qs['filter'] = filters[0]
-
-        # If there's a query_raw, we use that. Otherwise we use
-        # whatever we got from query and demote.
-        if query_raw:
-            qs['query'] = query_raw
+            qs = search_raw
 
         else:
-            pq = self._process_queries(queries)
+            qs = {}
 
-            if demote is not None:
-                qs['query'] = {
-                    'boosting': {
-                        'negative': self._process_queries([demote[1]]),
-                        'negative_boost': demote[0]
+            # If there's a filters_raw, we use that.
+            if filters_raw:
+                qs['filter'] = filters_raw
+            else:
+                if len(filters) > 1:
+                    qs['filter'] = {'and': filters}
+                elif filters:
+                    qs['filter'] = filters[0]
+
+            # If there's a query_raw, we use that. Otherwise we use
+            # whatever we got from query and demote.
+            if query_raw:
+                qs['query'] = query_raw
+
+            else:
+                pq = self._process_queries(queries)
+
+                if demote is not None:
+                    qs['query'] = {
+                        'boosting': {
+                            'negative': self._process_queries([demote[1]]),
+                            'negative_boost': demote[0]
+                            }
                         }
-                    }
-                if pq:
-                    qs['query']['boosting']['positive'] = pq
+                    if pq:
+                        qs['query']['boosting']['positive'] = pq
 
-            elif pq:
-                qs['query'] = pq
+                elif pq:
+                    qs['query'] = pq
 
-        if as_list:
-            fields = qs['fields'] = list(list_fields) if list_fields else ['*']
-        elif as_dict:
-            fields = qs['fields'] = list(dict_fields) if dict_fields else ['*']
-        else:
-            fields = set()
+            if as_list:
+                fields = qs['fields'] = list(list_fields) if list_fields else ['*']
+            elif as_dict:
+                fields = qs['fields'] = list(dict_fields) if dict_fields else ['*']
+            else:
+                fields = set()
 
-        if facets:
-            qs['facets'] = facets
-            # Hunt for `facet_filter` shells and update those. We use
-            # None as a shell, so if it's explicitly set to None, then
-            # we update it.
-            for facet in facets.values():
-                if facet.get('facet_filter', 1) is None and 'filter' in qs:
-                    facet['facet_filter'] = qs['filter']
+            if facets:
+                qs['facets'] = facets
+                # Hunt for `facet_filter` shells and update those. We use
+                # None as a shell, so if it's explicitly set to None, then
+                # we update it.
+                for facet in facets.values():
+                    if facet.get('facet_filter', 1) is None and 'filter' in qs:
+                        facet['facet_filter'] = qs['filter']
 
-        if facets_raw:
-            qs.setdefault('facets', {}).update(facets_raw)
+            if facets_raw:
+                qs.setdefault('facets', {}).update(facets_raw)
 
-        if sort:
-            qs['sort'] = sort
-        if self.start:
-            qs['from'] = self.start
-        if self.stop is not None:
-            qs['size'] = self.stop - self.start
+            if sort:
+                qs['sort'] = sort
+            if self.start:
+                qs['from'] = self.start
+            if self.stop is not None:
+                qs['size'] = self.stop - self.start
 
-        if highlight_fields:
-            qs['highlight'] = self._build_highlight(
-                highlight_fields, highlight_options)
+            if highlight_fields:
+                qs['highlight'] = self._build_highlight(
+                    highlight_fields, highlight_options)
 
-        if explain:
-            qs['explain'] = True
+            if explain:
+                qs['explain'] = True
 
-        for suggestion, (term, kwargs) in six.iteritems(suggestions):
-            qs.setdefault('suggest', {})[suggestion] = {
-                'text': term,
-                'term': {
-                    'field': kwargs.get('field', '_all'),
-                },
-            }
+            for suggestion, (term, kwargs) in six.iteritems(suggestions):
+                qs.setdefault('suggest', {})[suggestion] = {
+                    'text': term,
+                    'term': {
+                        'field': kwargs.get('field', '_all'),
+                    },
+                }
 
-        self.fields, self.as_list, self.as_dict = fields, as_list, as_dict
+            self.fields, self.as_list, self.as_dict = fields, as_list, as_dict
         self.search_type = search_type
         return qs
 
