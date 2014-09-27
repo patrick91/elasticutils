@@ -1229,10 +1229,6 @@ class S(PythonMixin):
 
             if sort:
                 qs['sort'] = sort
-            if self.start:
-                qs['from'] = self.start
-            if self.stop is not None:
-                qs['size'] = self.stop - self.start
 
             if highlight_fields:
                 qs['highlight'] = self._build_highlight(
@@ -1248,6 +1244,11 @@ class S(PythonMixin):
                         'field': kwargs.get('field', '_all'),
                     },
                 }
+
+        if self.start:
+            qs['from'] = self.start
+        if self.stop is not None:
+            qs['size'] = self.stop - self.start
 
         self.fields, self.as_list, self.as_dict = fields, as_list, as_dict
         self.search_type = search_type
