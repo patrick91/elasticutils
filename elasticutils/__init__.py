@@ -1228,10 +1228,6 @@ class S(PythonMixin):
 
             if sort:
                 qs['sort'] = sort
-            if self.start:
-                qs['from'] = self.start
-            if self.stop is not None:
-                qs['size'] = self.stop - self.start
 
             if highlight_fields:
                 qs['highlight'] = self._build_highlight(
@@ -1247,6 +1243,11 @@ class S(PythonMixin):
                         'field': kwargs.get('field', '_all'),
                     },
                 }
+
+        if self.start:
+            qs['from'] = self.start
+        if self.stop is not None:
+            qs['size'] = self.stop - self.start
 
         self.fields, self.as_list, self.as_dict = fields, as_list, as_dict
         self.search_type = search_type
@@ -2115,6 +2116,11 @@ class MappingType(object):
             # property because Python sucks at properties and
             # subclasses.
             return self.get_object()
+
+        if name == '_results_dict':
+            # Prevent infinite recursion when unpickling a
+            # mapping type instance.
+            raise AttributeError(name)
 
         # If that doesn't exist, then check the results_dict.
         if name in self._results_dict:
